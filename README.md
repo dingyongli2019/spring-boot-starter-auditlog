@@ -25,7 +25,7 @@ AOP + Reflect
 
 #### 使用说明
 
-##### 准备工作
+##### 一、准备工作
 1. 添加依赖：
 
 ```
@@ -50,7 +50,7 @@ properties方式：
 logging.level.wiki.xsx.log: 对应级别
 ```
 
-##### 开始使用
+##### 二、开始使用
 
 例如：
 ```
@@ -96,14 +96,19 @@ public class DemoApplication {
 
 #### 其他说明
 
+##### 日志类型
+1. @ParamLog：参数类型，仅打印参数
+2. @ResultLog：结果类型，仅打印结果
+3. @ThrowingLog：异常类型，仅打印异常
+4. @Log：综合类型，打印参数+结果+异常
+
+##### 日志参数
+1. value：业务名称
+2. level：日志级别，默认DEBUG
+
 ##### 日志级别
 1. DEBUG(默认): 调试级别
 2. INFO: 信息级别
 3. WARN: 警告级别
 4. ERROR: 错误级别
 
-##### 日志类型
-1. @ParamLog：参数类型，仅打印参数
-2. @ResultLog：结果类型，仅打印结果
-3. @ThrowingLog：异常类型，仅打印异常
-4. @Log：综合类型，打印参数+结果+异常
