@@ -6,12 +6,11 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
+import wiki.xsx.core.support.ArrayType;
 import wiki.xsx.core.support.MethodInfo;
 import wiki.xsx.core.support.MethodParser;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 日志处理器
@@ -204,7 +203,7 @@ public class LogProcessor {
         if (count>0) {
             Map<String, Object> paramMap = new HashMap<>(count);
             for (int i = 0; i < count; i++) {
-                paramMap.put(paramNames.get(i), params[i]);
+                paramMap.put(paramNames.get(i), this.getParam(params[i]));
             }
             return builder.append(paramMap).append("】").toString();
         }
@@ -238,6 +237,89 @@ public class LogProcessor {
         builder.append("调用方法：【").append(this.createMethodStack(signature, methodInfo)).append("】，")
                 .append("业务名称：【").append(busName).append("】，").append("异常信息：");
         return builder.toString();
+    }
+
+    /**
+     * 获取对应参数
+     * @param param 参数
+     * @return 返回参数
+     */
+    private Object getParam(Object param) {
+        Class<?> type = param.getClass();
+        return type.isArray() ? this.getList(type, param): param;
+    }
+
+    /**
+     * 获取数组类型参数列表
+     * @param valueType 数组类型
+     * @param value 参数值
+     * @return 返回参数列表
+     */
+    private List<Object> getList(Class valueType, Object value) {
+        if (valueType.isAssignableFrom(ArrayType.OBJECT_ARRAY.getType())) {
+            Object[] array = (Object[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            Collections.addAll(list, array);
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.INT_ARRAY.getType())) {
+            int[] array = (int[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (int v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.LONG_ARRAY.getType())) {
+            long[] array = (long[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (long v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.DOUBLE_ARRAY.getType())) {
+            double[] array = (double[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (double v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.FLOAT_ARRAY.getType())) {
+            float[] array = (float[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (float v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.CHAR_ARRAY.getType())) {
+            char[] array = (char[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (char v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.BOOLEAN_ARRAY.getType())) {
+            boolean[] array = (boolean[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (boolean v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.BYTE_ARRAY.getType())) {
+            byte[] array = (byte[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (byte v : array) {
+                list.add(v);
+            }
+            return list;
+        }else if (valueType.isAssignableFrom(ArrayType.SHORT_ARRAY.getType())) {
+            short[] array = (short[]) value;
+            List<Object> list = new ArrayList<>(array.length);
+            for (short v : array) {
+                list.add(v);
+            }
+            return list;
+        }else {
+            return null;
+        }
     }
 
     /**

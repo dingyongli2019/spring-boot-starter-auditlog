@@ -22,5 +22,5 @@ public enum Level {
     /**
      * 错误级别
      */
-    ERROR;
+    ERROR
 }
