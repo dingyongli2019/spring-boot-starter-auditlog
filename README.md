@@ -1,7 +1,7 @@
 # spring-boot-starter-slf4j
 
 #### 介绍
-一个注解搞定日志，减少到处编写日志的烦恼
+一个注解搞定日志的组件，减少到处编写日志的烦恼
 
 #### 软件架构
 依赖spring-boot-starter-aop
