@@ -233,13 +233,7 @@ public class LogProcessor {
      * @return 返回日志信息字符串
      */
     private String getBeforeInfo(String busName, MethodInfo methodInfo, Object[] params) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("调用方法：【");
-        if (methodInfo.getLineNumber()==LINE_NUMBER) {
-            builder.append(methodInfo.getClassAllName()).append(".").append(methodInfo.getMethodName());
-        }else {
-            builder.append(this.createMethodStack(methodInfo));
-        }
+        StringBuilder builder = this.createInfoBuilder(methodInfo);
         builder.append("】，").append("业务名称：【").append(busName).append("】，").append("接收参数：【");
         List<String> paramNames = methodInfo.getParamNames();
         int count = paramNames.size();
@@ -261,15 +255,15 @@ public class LogProcessor {
      * @return 返回日志信息字符串
      */
     private String getAfterInfo(String busName, MethodInfo methodInfo, Object result) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("调用方法：【");
-        if (methodInfo.getLineNumber()==LINE_NUMBER) {
-            builder.append(methodInfo.getClassAllName()).append(".").append(methodInfo.getMethodName());
-        }else {
-            builder.append("调用方法：【").append(this.createMethodStack(methodInfo));
-        }
-        builder.append("】，").append("业务名称：【").append(busName).append("】，").append("返回结果：【").append(result).append("】");
-        return builder.toString();
+        return this.createInfoBuilder(methodInfo)
+                .append("】，")
+                .append("业务名称：【")
+                .append(busName)
+                .append("】，")
+                .append("返回结果：【")
+                .append(result)
+                .append("】")
+                .toString();
     }
 
     /**
@@ -279,15 +273,28 @@ public class LogProcessor {
      * @return 返回日志信息字符串
      */
     private String getThrowingInfo(String busName, MethodInfo methodInfo) {
+        return this.createInfoBuilder(methodInfo)
+                .append("】，")
+                .append("业务名称：【")
+                .append(busName).append("】，")
+                .append("异常信息：")
+                .toString();
+    }
+
+    /**
+     * 创建日志信息builder
+     * @param methodInfo 方法信息
+     * @return 返回日志信息builder
+     */
+    private StringBuilder createInfoBuilder(MethodInfo methodInfo) {
         StringBuilder builder = new StringBuilder();
         builder.append("调用方法：【");
         if (methodInfo.getLineNumber()==LINE_NUMBER) {
             builder.append(methodInfo.getClassAllName()).append(".").append(methodInfo.getMethodName());
         }else {
-            builder.append("调用方法：【").append(this.createMethodStack(methodInfo));
+            builder.append(this.createMethodStack(methodInfo));
         }
-        builder.append("】，").append("业务名称：【").append(busName).append("】，").append("异常信息：");
-        return builder.toString();
+        return builder;
     }
 
     /**

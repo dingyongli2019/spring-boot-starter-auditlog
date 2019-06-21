@@ -113,10 +113,15 @@ public class DemoApplication {
 ##### 日志参数
 1. value：业务名称
 2. level：日志级别，默认DEBUG
+3. position：代码定位，默认DEFAULT
 
 ##### 日志级别
 1. DEBUG(默认): 调试级别
 2. INFO: 信息级别
 3. WARN: 警告级别
 4. ERROR: 错误级别
+
+#####特别说明
+1. 日志级别为DEBUG时，默认开启代码定位，方便调试
+2. 其他级别默认关闭代码定位，减少不必要的开支，如需要可手动开启(position=Position.ENABLED)
 
