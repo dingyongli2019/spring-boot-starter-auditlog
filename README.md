@@ -121,7 +121,7 @@ public class DemoApplication {
 3. WARN: 警告级别
 4. ERROR: 错误级别
 
-#####特别说明
+##### 特别说明
 1. 日志级别为DEBUG时，默认开启代码定位，方便调试
 2. 其他级别默认关闭代码定位，减少不必要的开支，如需要可手动开启(position=Position.ENABLED)
 
