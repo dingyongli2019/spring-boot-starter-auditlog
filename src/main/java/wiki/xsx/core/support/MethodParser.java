@@ -1,11 +1,14 @@
 package wiki.xsx.core.support;
 
 import javassist.ClassPool;
+import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.bytecode.LocalVariableAttribute;
+import org.aspectj.lang.reflect.MethodSignature;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,35 +43,83 @@ public class MethodParser {
      */
     public static MethodInfo getMethodInfo(String className, String methodName) {
         try {
-            return getMethodInfo(getMethod(className, methodName));
+            return getMethodInfo(getMethod(className, methodName), null);
         } catch (Exception e) {
-            return new MethodInfo(methodName, new ArrayList<>(0), -1);
+            return new MethodInfo(
+                    className,
+                    className.substring(className.lastIndexOf(".")),
+                    methodName,
+                    new ArrayList<>(0),
+                    -2
+            );
+        }
+    }
+
+    /**
+     * 获取方法信息
+     * @param className 全类名
+     * @param methodName 方法名称
+     * @param parameterNames 参数列表
+     * @return 返回方法信息
+     */
+    public static MethodInfo getMethodInfo(String className, String methodName, String[] parameterNames) {
+        try {
+            return getMethodInfo(getMethod(className, methodName), parameterNames);
+        } catch (Exception e) {
+            return new MethodInfo(
+                    className,
+                    className.substring(className.lastIndexOf(".")),
+                    methodName,
+                    new ArrayList<>(0),
+                    -2
+            );
         }
     }
 
     /**
      * 获取方法信息
      * @param method 方法对象
+     * @param parameterNames 参数列表
      * @return 返回方法信息
      */
-    public static MethodInfo getMethodInfo(CtMethod method) {
+    public static MethodInfo getMethodInfo(CtMethod method, String[] parameterNames) {
+        CtClass declaringClass = method.getDeclaringClass();
         try {
             javassist.bytecode.MethodInfo methodInfo = method.getMethodInfo();
             int lineNumber = methodInfo.getLineNumber(0);
             List<String> paramNames;
-            LocalVariableAttribute attribute = (LocalVariableAttribute) methodInfo.getCodeAttribute().getAttribute(LocalVariableAttribute.tag);
-            if (attribute!=null) {
-                int count = method.getParameterTypes().length;
-                paramNames = new ArrayList<>(count);
-                for (int i = 1; i <= count; i++) {
-                    paramNames.add(attribute.variableName(i));
-                }
+            if (parameterNames!=null) {
+                paramNames = new ArrayList<>(parameterNames.length);
+                Collections.addAll(paramNames, parameterNames);
             }else {
-                paramNames = new ArrayList<>(0);
+                LocalVariableAttribute attribute = (LocalVariableAttribute) methodInfo.getCodeAttribute().getAttribute(LocalVariableAttribute.tag);
+                if (attribute!=null) {
+                    int count = method.getParameterTypes().length;
+                    paramNames = new ArrayList<>(count);
+                    for (int i = 1; i <= count; i++) {
+                        paramNames.add(attribute.variableName(i));
+                    }
+                }else {
+                    paramNames = new ArrayList<>(0);
+                }
             }
-            return new MethodInfo(method.getName(), paramNames, lineNumber);
+            return new MethodInfo(declaringClass.getName(), declaringClass.getSimpleName(), method.getName(), paramNames, lineNumber);
         } catch (Exception e) {
-            return new MethodInfo(method.getName(), new ArrayList<>(0), -1);
+            return new MethodInfo(declaringClass.getName(), declaringClass.getSimpleName(), method.getName(), new ArrayList<>(0), -2);
         }
+    }
+
+    /**
+     * 获取方法信息
+     * @param signature 方法签名
+     * @param lineNumber 方法行号
+     * @return 返回方法信息
+     */
+    public static MethodInfo getMethodInfo(MethodSignature signature, int lineNumber) {
+        Class declaringClass = signature.getDeclaringType();
+        String[] parameterNames = signature.getParameterNames();
+        List<String> paramNames = new ArrayList<>(parameterNames.length);
+        Collections.addAll(paramNames, parameterNames);
+        return new MethodInfo(declaringClass.getName(), declaringClass.getSimpleName(), signature.getName(), paramNames, lineNumber);
     }
 }
