@@ -23,4 +23,10 @@ public @interface Log {
      * @return
      */
     Level level() default Level.DEBUG;
+
+    /**
+     * 代码定位支持
+     * @return
+     */
+    Position position() default Position.DEFAULT;
 }

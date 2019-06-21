@@ -1,15 +1,15 @@
 package wiki.xsx.core.log;
 
-import javassist.CtMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.MethodSignature;
 import wiki.xsx.core.support.ArrayType;
 import wiki.xsx.core.support.MethodInfo;
 import wiki.xsx.core.support.MethodParser;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -23,35 +23,20 @@ import java.util.*;
 public class LogProcessor {
 
     /**
+     * 代表本地方法，不进行代码定位
+     */
+    private static final int LINE_NUMBER = -2;
+
+    /**
      * 打印参数日志
      * @param joinPoint 切入点
      */
     @Before("@annotation(ParamLog)")
     public void beforPrint(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
-        Signature signature = joinPoint.getSignature();
-        String methodName = signature.getName();
-        try {
-            CtMethod method = MethodParser.getMethod(signature.getDeclaringTypeName(), methodName);
-            ParamLog paramLogAnnotation;
-            try {
-                paramLogAnnotation = (ParamLog) method.getAnnotation(ParamLog.class);
-            } catch (ClassNotFoundException e) {
-                paramLogAnnotation = null;
-            }
-            if (paramLogAnnotation!=null) {
-                this.print(
-                        paramLogAnnotation.level(),
-                        this.getBeforeInfo(
-                                paramLogAnnotation.value(),
-                                signature,
-                                MethodParser.getMethodInfo(method),
-                                args
-                        )
-                );
-            }
-        } catch (Exception e) {
-            log.error("{}.{}方法错误", signature.getDeclaringTypeName(), methodName);
+        if (this.isEnable()) {
+            MethodSignature signature  = (MethodSignature) joinPoint.getSignature();
+            ParamLog annotation = signature.getMethod().getAnnotation(ParamLog.class);
+            this.beforPrint(signature, joinPoint.getArgs(), annotation.value(), annotation.level(), annotation.position());
         }
     }
 
@@ -62,29 +47,10 @@ public class LogProcessor {
      */
     @AfterReturning(value = "@annotation(ResultLog)", returning = "result")
     public void afterPrint(JoinPoint joinPoint, Object result) {
-        Signature signature = joinPoint.getSignature();
-        String methodName = signature.getName();
-        try {
-            CtMethod method = MethodParser.getMethod(signature.getDeclaringTypeName(), methodName);
-            ResultLog resultLogAnnotation;
-            try {
-                resultLogAnnotation = (ResultLog) method.getAnnotation(ResultLog.class);
-            } catch (ClassNotFoundException e) {
-                resultLogAnnotation = null;
-            }
-            if (resultLogAnnotation!=null) {
-                this.print(
-                        resultLogAnnotation.level(),
-                        this.getAfterInfo(
-                                resultLogAnnotation.value(),
-                                signature,
-                                MethodParser.getMethodInfo(method),
-                                result
-                        )
-                );
-            }
-        } catch (Exception e) {
-            log.error("{}.{}方法错误", signature.getDeclaringTypeName(), methodName);
+        if (this.isEnable()) {
+            MethodSignature signature  = (MethodSignature) joinPoint.getSignature();
+            ResultLog annotation = signature.getMethod().getAnnotation(ResultLog.class);
+            this.afterPrint(signature, result, annotation.value(), annotation.level(), annotation.position());
         }
     }
 
@@ -95,45 +61,32 @@ public class LogProcessor {
      */
     @AfterThrowing(value = "@annotation(ThrowingLog)||@annotation(Log)", throwing = "throwable")
     public void throwingPrint(JoinPoint joinPoint, Throwable throwable) {
-        Signature signature = joinPoint.getSignature();
-        String methodName = signature.getName();
-        try {
-            CtMethod method = MethodParser.getMethod(signature.getDeclaringTypeName(), methodName);
-            ThrowingLog throwingAnnotation;
+        if (this.isEnable()) {
+            MethodSignature signature  = (MethodSignature) joinPoint.getSignature();
+            Method method = signature.getMethod();
+            String methodName = method.getName();
             try {
-                throwingAnnotation = (ThrowingLog) method.getAnnotation(ThrowingLog.class);
-            } catch (ClassNotFoundException e) {
-                throwingAnnotation = null;
-            }
-            if (throwingAnnotation!=null) {
-                log.error(
-                        this.getThrowingInfo(
-                                throwingAnnotation.value(),
-                                signature,
-                                MethodParser.getMethodInfo(method)
-                        ),
-                        throwable
-                );
-            }else {
-                Log logAnnotation;
-                try {
-                    logAnnotation = (Log) method.getAnnotation(Log.class);
-                } catch (ClassNotFoundException e) {
-                    logAnnotation = null;
-                }
-                if (logAnnotation!=null) {
+                ThrowingLog annotation = method.getAnnotation(ThrowingLog.class);
+                if (annotation!=null) {
                     log.error(
                             this.getThrowingInfo(
-                                    logAnnotation.value(),
-                                    signature,
-                                    MethodParser.getMethodInfo(method)
+                                    annotation.value(),
+                                    MethodParser.getMethodInfo(signature, -2)
+                            ),
+                            throwable
+                    );
+                }else {
+                    log.error(
+                            this.getThrowingInfo(
+                                    method.getAnnotation(Log.class).value(),
+                                    MethodParser.getMethodInfo(signature, -2)
                             ),
                             throwable
                     );
                 }
+            } catch (Exception e) {
+                log.error("{}.{}方法错误", signature.getDeclaringTypeName(), methodName);
             }
-        } catch (Exception e) {
-            log.error("{}.{}方法错误", signature.getDeclaringTypeName(), methodName);
         }
     }
 
@@ -145,59 +98,149 @@ public class LogProcessor {
      */
     @Around(value = "@annotation(Log)")
     public Object aroundPrint(ProceedingJoinPoint joinPoint) throws Throwable {
+        MethodSignature signature  = (MethodSignature) joinPoint.getSignature();
         Object[] args = joinPoint.getArgs();
-        Signature signature = joinPoint.getSignature();
-        String methodName = signature.getName();
+        Object result = joinPoint.proceed(args);
+        if (this.isEnable()) {
+            Log annotation = signature.getMethod().getAnnotation(Log.class);
+            this.beforPrint(signature, args, annotation.value(), annotation.level(), annotation.position());
+            this.afterPrint(signature, result, annotation.value(), annotation.level(), annotation.position());
+        }
+        return result;
+    }
+
+    /**
+     * 打印参数日志
+     * @param signature 方法签名
+     * @param args 参数列表
+     * @param busName 业务名称
+     * @param level 日志级别
+     * @param position 代码定位开启标志
+     */
+    private void beforPrint(MethodSignature signature, Object[] args, String busName, Level level, Position position) {
+        Method method = signature.getMethod();
+        String methodName = method.getName();
         try {
-            CtMethod method = MethodParser.getMethod(signature.getDeclaringTypeName(), methodName);
-            Log logAnnotation;
-            try {
-                logAnnotation = (Log) method.getAnnotation(Log.class);
-            } catch (ClassNotFoundException e) {
-                logAnnotation = null;
+            if (log.isDebugEnabled()) {
+                if (position==Position.DEFAULT||position==Position.ENABLED) {
+                    this.print(
+                            level,
+                            this.getBeforeInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature.getDeclaringTypeName(), methodName, signature.getParameterNames()),
+                                    args
+                            )
+                    );
+                }else {
+                    this.print(
+                            level,
+                            this.getBeforeInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature, -2),
+                                    args
+                            )
+                    );
+                }
+            }else {
+                if (position==Position.ENABLED) {
+                    this.print(
+                            level,
+                            this.getBeforeInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature.getDeclaringTypeName(), methodName, signature.getParameterNames()),
+                                    args
+                            )
+                    );
+                }else {
+                    this.print(
+                            level,
+                            this.getBeforeInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature, -2),
+                                    args
+                            )
+                    );
+                }
             }
-            if (logAnnotation!=null) {
-                this.print(
-                        logAnnotation.level(),
-                        this.getBeforeInfo(
-                                logAnnotation.value(),
-                                signature,
-                                MethodParser.getMethodInfo(method),
-                                args
-                        )
-                );
-            }
-            Object result = joinPoint.proceed(args);
-            if (logAnnotation!=null) {
-                this.print(
-                        logAnnotation.level(),
-                        this.getAfterInfo(
-                                logAnnotation.value(),
-                                signature,
-                                MethodParser.getMethodInfo(method),
-                                result
-                        )
-                );
-            }
-            return result;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("{}.{}方法错误", signature.getDeclaringTypeName(), methodName);
-            throw e;
+        }
+    }
+
+    /**
+     * 打印返回值日志
+     * @param signature 方法签名
+     * @param result 返回结果
+     * @param busName 业务名称
+     * @param level 日志级别
+     * @param position 代码定位开启标志
+     */
+    private void afterPrint(MethodSignature signature, Object result, String busName, Level level, Position position) {
+        Method method = signature.getMethod();
+        String methodName = method.getName();
+        try {
+            if (log.isDebugEnabled()) {
+                if (position==Position.DEFAULT||position==Position.ENABLED) {
+                    this.print(
+                            level,
+                            this.getAfterInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature.getDeclaringTypeName(), methodName, signature.getParameterNames()),
+                                    result
+                            )
+                    );
+                }else {
+                    this.print(
+                            level,
+                            this.getAfterInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature, -2),
+                                    result
+                            )
+                    );
+                }
+            }else {
+                if (position==Position.ENABLED) {
+                    this.print(
+                            level,
+                            this.getAfterInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature.getDeclaringTypeName(), methodName, signature.getParameterNames()),
+                                    result
+                            )
+                    );
+                }else {
+                    this.print(
+                            level,
+                            this.getAfterInfo(
+                                    busName,
+                                    MethodParser.getMethodInfo(signature, -2),
+                                    result
+                            )
+                    );
+                }
+            }
+        } catch (Exception e) {
+            log.error("{}.{}方法错误", signature.getDeclaringTypeName(), methodName);
         }
     }
 
     /**
      * 获取日志信息字符串
      * @param busName 业务名
-     * @param signature 签名信息
      * @param methodInfo 方法信息
      * @param params 参数值
      * @return 返回日志信息字符串
      */
-    private String getBeforeInfo(String busName, Signature signature, MethodInfo methodInfo, Object[] params) {
+    private String getBeforeInfo(String busName, MethodInfo methodInfo, Object[] params) {
         StringBuilder builder = new StringBuilder();
-        builder.append("调用方法：【").append(this.createMethodStack(signature, methodInfo)).append("】，")
-                .append("业务名称：【").append(busName).append("】，").append("接收参数：【");
+        builder.append("调用方法：【");
+        if (methodInfo.getLineNumber()==LINE_NUMBER) {
+            builder.append(methodInfo.getClassAllName()).append(".").append(methodInfo.getMethodName());
+        }else {
+            builder.append(this.createMethodStack(methodInfo));
+        }
+        builder.append("】，").append("业务名称：【").append(busName).append("】，").append("接收参数：【");
         List<String> paramNames = methodInfo.getParamNames();
         int count = paramNames.size();
         if (count>0) {
@@ -213,29 +256,37 @@ public class LogProcessor {
     /**
      * 获取日志信息字符串
      * @param busName 业务名
-     * @param signature 签名信息
      * @param methodInfo 方法信息
      * @param result 返回结果
      * @return 返回日志信息字符串
      */
-    private String getAfterInfo(String busName, Signature signature, MethodInfo methodInfo, Object result) {
+    private String getAfterInfo(String busName, MethodInfo methodInfo, Object result) {
         StringBuilder builder = new StringBuilder();
-        builder.append("调用方法：【").append(this.createMethodStack(signature, methodInfo)).append("】，")
-                .append("业务名称：【").append(busName).append("】，").append("返回结果：【").append(result).append("】");
+        builder.append("调用方法：【");
+        if (methodInfo.getLineNumber()==LINE_NUMBER) {
+            builder.append(methodInfo.getClassAllName()).append(".").append(methodInfo.getMethodName());
+        }else {
+            builder.append("调用方法：【").append(this.createMethodStack(methodInfo));
+        }
+        builder.append("】，").append("业务名称：【").append(busName).append("】，").append("返回结果：【").append(result).append("】");
         return builder.toString();
     }
 
     /**
      * 获取日志信息字符串
      * @param busName 业务名
-     * @param signature 签名信息
      * @param methodInfo 方法信息
      * @return 返回日志信息字符串
      */
-    private String getThrowingInfo(String busName, Signature signature, MethodInfo methodInfo) {
+    private String getThrowingInfo(String busName, MethodInfo methodInfo) {
         StringBuilder builder = new StringBuilder();
-        builder.append("调用方法：【").append(this.createMethodStack(signature, methodInfo)).append("】，")
-                .append("业务名称：【").append(busName).append("】，").append("异常信息：");
+        builder.append("调用方法：【");
+        if (methodInfo.getLineNumber()==LINE_NUMBER) {
+            builder.append(methodInfo.getClassAllName()).append(".").append(methodInfo.getMethodName());
+        }else {
+            builder.append("调用方法：【").append(this.createMethodStack(methodInfo));
+        }
+        builder.append("】，").append("业务名称：【").append(busName).append("】，").append("异常信息：");
         return builder.toString();
     }
 
@@ -324,15 +375,14 @@ public class LogProcessor {
 
     /**
      * 创建方法栈
-     * @param signature 签名信息
      * @param methodInfo 方法信息
      * @return 返回栈信息
      */
-    private StackTraceElement createMethodStack(Signature signature, MethodInfo methodInfo) {
+    private StackTraceElement createMethodStack(MethodInfo methodInfo) {
         return new StackTraceElement(
-                signature.getDeclaringTypeName(),
+                methodInfo.getClassAllName(),
                 methodInfo.getMethodName(),
-                String.format("%s.java", signature.getDeclaringType().getSimpleName()),
+                String.format("%s.java", methodInfo.getClassSimpleName()),
                 methodInfo.getLineNumber()
         );
     }
@@ -362,5 +412,17 @@ public class LogProcessor {
             }
             default:
         }
+    }
+
+    /**
+     * 判断是否开启打印
+     * @return 返回布尔值
+     */
+    private boolean isEnable() {
+        return log.isDebugEnabled()||
+                log.isInfoEnabled()||
+                log.isWarnEnabled()||
+                log.isErrorEnabled()||
+                log.isTraceEnabled();
     }
 }
