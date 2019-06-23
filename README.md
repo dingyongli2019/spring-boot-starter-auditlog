@@ -40,7 +40,7 @@ AOP + Reflect
 <dependency>
     <groupId>wiki.xsx</groupId>
     <artifactId>spring-boot-starter-slf4j</artifactId>
-    <version>1.0.0</version>
+    <version>RELEASE</version>
 </dependency>
 ```
 2. 开启日志：
