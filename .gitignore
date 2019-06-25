@@ -25,3 +25,5 @@ hs_err_pid*
 #others
 *.idea
 *.iml
+*.scannerwork
+sonar-project.properties

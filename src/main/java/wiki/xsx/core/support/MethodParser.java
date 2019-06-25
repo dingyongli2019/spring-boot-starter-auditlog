@@ -22,7 +22,7 @@ public class MethodParser {
     /**
      * 类池
      */
-    private final static ClassPool POOL = ClassPool.getDefault();
+    private static final ClassPool POOL = ClassPool.getDefault();
 
     /**
      * 获取调用方法
@@ -39,26 +39,6 @@ public class MethodParser {
      * 获取方法信息
      * @param className 全类名
      * @param methodName 方法名称
-     * @return 返回方法信息
-     */
-    public static MethodInfo getMethodInfo(String className, String methodName) {
-        try {
-            return getMethodInfo(getMethod(className, methodName), null);
-        } catch (Exception e) {
-            return new MethodInfo(
-                    className,
-                    className.substring(className.lastIndexOf(".")),
-                    methodName,
-                    new ArrayList<>(0),
-                    -2
-            );
-        }
-    }
-
-    /**
-     * 获取方法信息
-     * @param className 全类名
-     * @param methodName 方法名称
      * @param parameterNames 参数列表
      * @return 返回方法信息
      */
@@ -68,7 +48,7 @@ public class MethodParser {
         } catch (Exception e) {
             return new MethodInfo(
                     className,
-                    className.substring(className.lastIndexOf(".")),
+                    className.substring(className.lastIndexOf('.')),
                     methodName,
                     new ArrayList<>(0),
                     -2

@@ -233,8 +233,8 @@ public class LogProcessor {
      * @return 返回日志信息字符串
      */
     private String getBeforeInfo(String busName, MethodInfo methodInfo, Object[] params) {
-        StringBuilder builder = this.createInfoBuilder(methodInfo);
-        builder.append("】，").append("业务名称：【").append(busName).append("】，").append("接收参数：【");
+        StringBuilder builder = this.createInfoBuilder(busName, methodInfo);
+        builder.append("接收参数：【");
         List<String> paramNames = methodInfo.getParamNames();
         int count = paramNames.size();
         if (count>0) {
@@ -255,15 +255,7 @@ public class LogProcessor {
      * @return 返回日志信息字符串
      */
     private String getAfterInfo(String busName, MethodInfo methodInfo, Object result) {
-        return this.createInfoBuilder(methodInfo)
-                .append("】，")
-                .append("业务名称：【")
-                .append(busName)
-                .append("】，")
-                .append("返回结果：【")
-                .append(result)
-                .append("】")
-                .toString();
+        return this.createInfoBuilder(busName, methodInfo).append("返回结果：【").append(result).append("】").toString();
     }
 
     /**
@@ -273,20 +265,16 @@ public class LogProcessor {
      * @return 返回日志信息字符串
      */
     private String getThrowingInfo(String busName, MethodInfo methodInfo) {
-        return this.createInfoBuilder(methodInfo)
-                .append("】，")
-                .append("业务名称：【")
-                .append(busName).append("】，")
-                .append("异常信息：")
-                .toString();
+        return this.createInfoBuilder(busName, methodInfo).append("异常信息：").toString();
     }
 
     /**
      * 创建日志信息builder
+     * @param busName 业务名
      * @param methodInfo 方法信息
      * @return 返回日志信息builder
      */
-    private StringBuilder createInfoBuilder(MethodInfo methodInfo) {
+    private StringBuilder createInfoBuilder(String busName, MethodInfo methodInfo) {
         StringBuilder builder = new StringBuilder();
         builder.append("调用方法：【");
         if (methodInfo.getLineNumber()==LINE_NUMBER) {
@@ -294,7 +282,7 @@ public class LogProcessor {
         }else {
             builder.append(this.createMethodStack(methodInfo));
         }
-        return builder;
+        return builder.append("】，").append("业务名称：【").append(busName).append("】，");
     }
 
     /**
@@ -313,6 +301,7 @@ public class LogProcessor {
      * @param value 参数值
      * @return 返回参数列表
      */
+    @SuppressWarnings("unchecked")
     private List<Object> getList(Class valueType, Object value) {
         if (valueType.isAssignableFrom(ArrayType.OBJECT_ARRAY.getType())) {
             Object[] array = (Object[]) value;
@@ -376,7 +365,7 @@ public class LogProcessor {
             }
             return list;
         }else {
-            return null;
+            return new ArrayList<>(0);
         }
     }
 
@@ -401,22 +390,10 @@ public class LogProcessor {
      */
     private void print(Level level, String msg) {
         switch (level) {
-            case DEBUG: {
-                log.debug(msg);
-                break;
-            }
-            case INFO: {
-                log.info(msg);
-                break;
-            }
-            case WARN: {
-                log.warn(msg);
-                break;
-            }
-            case ERROR: {
-                log.error(msg);
-                break;
-            }
+            case DEBUG: log.debug(msg); break;
+            case INFO: log.info(msg); break;
+            case WARN: log.warn(msg); break;
+            case ERROR: log.error(msg); break;
             default:
         }
     }
