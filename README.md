@@ -1,12 +1,9 @@
-# spring-boot-starter-slf4j
+# spring-boot-starter-auditlog
 
 <p align="center">
     <img src="https://img.shields.io/badge/JDK-1.8+-green.svg" />
     <img src="https://img.shields.io/maven-central/v/wiki.xsx/spring-boot-starter-slf4j.svg?label=Maven%20Central" />
     <img src="https://img.shields.io/:license-apache-blue.svg" />
-    <a href='https://gitee.com/xsxgit/spring-boot-starter-slf4j/stargazers'>
-        <img src='https://gitee.com/xsxgit/spring-boot-starter-slf4j/badge/star.svg?theme=dark' alt='star'></img>
-    </a>
 </p>
 
 #### 介绍
@@ -38,8 +35,8 @@ AOP + Reflect
 
 ```
 <dependency>
-    <groupId>wiki.xsx</groupId>
-    <artifactId>spring-boot-starter-slf4j</artifactId>
+    <groupId>com.tongxiaoya</groupId>
+    <artifactId>spring-boot-starter-auditlog</artifactId>
     <version>RELEASE</version>
 </dependency>
 ```
