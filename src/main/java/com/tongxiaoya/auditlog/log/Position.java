@@ -1,4 +1,4 @@
-package wiki.xsx.core.log;
+package com.tongxiaoya.auditlog.log;
 
 /**
  * 代码定位

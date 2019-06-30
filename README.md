@@ -96,10 +96,10 @@ public class DemoApplication {
 
 打印效果：
 ```
-2019-06-20 00:53:32.390 DEBUG 7932 --- [           main] wiki.xsx.core.log.LogProcessor           : 调用方法：【com.example.demo.service.TestService.test1(TestService.java:19)】，业务名称：【test1】，接收参数：【{}】
-2019-06-20 00:53:32.405 DEBUG 7932 --- [           main] wiki.xsx.core.log.LogProcessor           : 调用方法：【com.example.demo.service.TestService.test2(TestService.java:22)】，业务名称：【test2】，返回结果：【null】
-2019-06-20 00:53:32.412 DEBUG 7932 --- [           main] wiki.xsx.core.log.LogProcessor           : 调用方法：【com.example.demo.service.TestService.test4(TestService.java:28)】，业务名称：【test4】，接收参数：【{name=xsx2, id=[1, 2, 3, 4]}】
-2019-06-20 00:53:32.413 DEBUG 7932 --- [           main] wiki.xsx.core.log.LogProcessor           : 调用方法：【com.example.demo.service.TestService.test4(TestService.java:28)】，业务名称：【test4】，返回结果：【null】
+2019-06-20 00:53:32.390 DEBUG 7932 --- [           main] LogProcessor           : 调用方法：【com.example.demo.service.TestService.test1(TestService.java:19)】，业务名称：【test1】，接收参数：【{}】
+2019-06-20 00:53:32.405 DEBUG 7932 --- [           main] LogProcessor           : 调用方法：【com.example.demo.service.TestService.test2(TestService.java:22)】，业务名称：【test2】，返回结果：【null】
+2019-06-20 00:53:32.412 DEBUG 7932 --- [           main] LogProcessor           : 调用方法：【com.example.demo.service.TestService.test4(TestService.java:28)】，业务名称：【test4】，接收参数：【{name=xsx2, id=[1, 2, 3, 4]}】
+2019-06-20 00:53:32.413 DEBUG 7932 --- [           main] LogProcessor           : 调用方法：【com.example.demo.service.TestService.test4(TestService.java:28)】，业务名称：【test4】，返回结果：【null】
 ```
 
 #### 其他说明

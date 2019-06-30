@@ -1,17 +1,17 @@
-package wiki.xsx.core.log;
+package com.tongxiaoya.auditlog.log;
 
 import java.lang.annotation.*;
 
 /**
- * 参数日志
+ * 结果日志
  * @author xsx
- * @date 2019/6/17
+ * @date 2019/6/18
  * @since 1.8
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ParamLog {
+public @interface ResultLog {
     /**
      * 业务名称
      * @return

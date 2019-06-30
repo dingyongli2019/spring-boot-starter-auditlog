@@ -1,2 +1,2 @@
 #log自动装配
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=wiki.xsx.core.config.LogAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.tongxiaoya.auditlog.config.LogAutoConfiguration

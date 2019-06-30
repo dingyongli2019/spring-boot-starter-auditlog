@@ -1,4 +1,4 @@
-package wiki.xsx.core.support;
+package com.tongxiaoya.auditlog.support;
 
 /**
  * 数组类型

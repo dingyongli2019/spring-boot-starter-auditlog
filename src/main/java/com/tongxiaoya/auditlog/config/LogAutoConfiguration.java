@@ -1,10 +1,10 @@
-package wiki.xsx.core.config;
+package com.tongxiaoya.auditlog.config;
 
 import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import wiki.xsx.core.log.LogProcessor;
+import com.tongxiaoya.auditlog.log.LogProcessor;
 
 /**
  * 日志自动装配
