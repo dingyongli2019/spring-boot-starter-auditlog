@@ -2,8 +2,6 @@ package com.tongxiaoya.auditlog.support;
 
 /**
  * 数组类型
- * @author xsx
- * @date 2019/6/19
  * @since 1.8
  */
 public enum ArrayType {

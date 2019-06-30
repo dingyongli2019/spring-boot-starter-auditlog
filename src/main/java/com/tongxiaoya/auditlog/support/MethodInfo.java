@@ -5,7 +5,6 @@ import java.util.List;
 /**
  * 方法信息
  *
- * @author xsx
  * @since 1.8
  */
 public class MethodInfo {

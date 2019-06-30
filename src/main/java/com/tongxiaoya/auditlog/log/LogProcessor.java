@@ -16,8 +16,6 @@ import java.util.*;
 /**
  * 日志处理器
  *
- * @author xsx
- * @date 2019/6/17
  * @since 1.8
  */
 @Aspect
@@ -36,11 +34,11 @@ public class LogProcessor {
      * @param joinPoint 切入点
      */
     @Before("@annotation(com.tongxiaoya.auditlog.log.ParamLog)")
-    public void beforPrint(JoinPoint joinPoint) {
+    public void beforePrint(JoinPoint joinPoint) {
         if (this.isEnable()) {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             ParamLog annotation = signature.getMethod().getAnnotation(ParamLog.class);
-            this.beforPrint(signature, joinPoint.getArgs(), annotation.value(), annotation.level(), annotation.position());
+            this.beforePrint(signature, joinPoint.getArgs(), annotation.value(), annotation.level(), annotation.position());
         }
     }
 
@@ -110,7 +108,7 @@ public class LogProcessor {
         Object result = joinPoint.proceed(args);
         if (this.isEnable()) {
             Log annotation = signature.getMethod().getAnnotation(Log.class);
-            this.beforPrint(signature, args, annotation.value(), annotation.level(), annotation.position());
+            this.beforePrint(signature, args, annotation.value(), annotation.level(), annotation.position());
             this.afterPrint(signature, result, annotation.value(), annotation.level(), annotation.position());
         }
         return result;
@@ -125,7 +123,7 @@ public class LogProcessor {
      * @param level     日志级别
      * @param position  代码定位开启标志
      */
-    private void beforPrint(MethodSignature signature, Object[] args, String busName, Level level, Position position) {
+    private void beforePrint(MethodSignature signature, Object[] args, String busName, Level level, Position position) {
         Method method = signature.getMethod();
         String methodName = method.getName();
         try {

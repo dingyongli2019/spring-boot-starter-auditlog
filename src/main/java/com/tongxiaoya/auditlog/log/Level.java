@@ -2,8 +2,7 @@ package com.tongxiaoya.auditlog.log;
 
 /**
  * 日志级别
- * @author xsx
- * @date 2019/6/19
+ *
  * @since 1.8
  */
 public enum Level {

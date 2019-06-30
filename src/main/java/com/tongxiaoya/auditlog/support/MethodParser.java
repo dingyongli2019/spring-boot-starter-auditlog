@@ -13,8 +13,7 @@ import java.util.List;
 
 /**
  * 方法解析器
- * @author xsx
- * @date 2019/6/19
+ *
  * @since 1.8
  */
 public class MethodParser {
@@ -26,7 +25,8 @@ public class MethodParser {
 
     /**
      * 获取调用方法
-     * @param className 全类名
+     *
+     * @param className  全类名
      * @param methodName 方法名称
      * @return 返回对应方法
      * @throws NotFoundException 未知方法异常
@@ -37,8 +37,9 @@ public class MethodParser {
 
     /**
      * 获取方法信息
-     * @param className 全类名
-     * @param methodName 方法名称
+     *
+     * @param className      全类名
+     * @param methodName     方法名称
      * @param parameterNames 参数列表
      * @return 返回方法信息
      */
@@ -58,7 +59,8 @@ public class MethodParser {
 
     /**
      * 获取方法信息
-     * @param method 方法对象
+     *
+     * @param method         方法对象
      * @param parameterNames 参数列表
      * @return 返回方法信息
      */
@@ -68,18 +70,18 @@ public class MethodParser {
             javassist.bytecode.MethodInfo methodInfo = method.getMethodInfo();
             int lineNumber = methodInfo.getLineNumber(0);
             List<String> paramNames;
-            if (parameterNames!=null) {
+            if (parameterNames != null) {
                 paramNames = new ArrayList<>(parameterNames.length);
                 Collections.addAll(paramNames, parameterNames);
-            }else {
+            } else {
                 LocalVariableAttribute attribute = (LocalVariableAttribute) methodInfo.getCodeAttribute().getAttribute(LocalVariableAttribute.tag);
-                if (attribute!=null) {
+                if (attribute != null) {
                     int count = method.getParameterTypes().length;
                     paramNames = new ArrayList<>(count);
                     for (int i = 1; i <= count; i++) {
                         paramNames.add(attribute.variableName(i));
                     }
-                }else {
+                } else {
                     paramNames = new ArrayList<>(0);
                 }
             }
@@ -91,7 +93,8 @@ public class MethodParser {
 
     /**
      * 获取方法信息
-     * @param signature 方法签名
+     *
+     * @param signature  方法签名
      * @param lineNumber 方法行号
      * @return 返回方法信息
      */

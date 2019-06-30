@@ -22,9 +22,9 @@ AOP + Reflect
 
 ```
 <dependency>
-    <groupId>wiki.xsx</groupId>
-    <artifactId>spring-boot-starter-slf4j</artifactId>
-    <version>1.1.0</version>
+    <groupId>com.tongxiaoya</groupId>
+    <artifactId>spring-boot-starter-auditlog</artifactId>
+    <version>1.0</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ AOP + Reflect
 <dependency>
     <groupId>com.tongxiaoya</groupId>
     <artifactId>spring-boot-starter-auditlog</artifactId>
-    <version>RELEASE</version>
+    <version>1.0</version>
 </dependency>
 ```
 2. 开启日志：
@@ -47,12 +47,12 @@ yml方式：
 ```
 logging:
   level:
-    wiki.xsx.log: 对应级别
+    auditlog: 对应级别
 ```
 properties方式：
 
 ```
-logging.level.wiki.xsx.log: 对应级别
+logging.level.auditlog: 对应级别
 ```
 
 ##### 二、开始使用

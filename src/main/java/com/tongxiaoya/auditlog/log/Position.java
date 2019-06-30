@@ -2,8 +2,7 @@ package com.tongxiaoya.auditlog.log;
 
 /**
  * 代码定位
- * @author xsx
- * @date 2019/6/21
+ *
  * @since 1.8
  */
 public enum Position {
